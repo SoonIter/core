@@ -2,8 +2,7 @@ import * as path from 'path';
 import { defineConfig } from 'rspress/config';
 import { moduleFederationPluginOverview } from './src/moduleFederationPluginOverview';
 import { pluginAnnotationWords } from 'rspress-plugin-annotation-words';
-import { ModuleFederationPlugin } from '@module-federation/enhanced/rspack';
-import fs from 'fs';
+import { pluginModuleFederation } from '@module-federation/rspress-plugin';
 import mfConfig from './module-federation.config';
 
 const getNavbar = (lang: string) => {
@@ -84,8 +83,13 @@ export default defineConfig({
     pluginAnnotationWords({
       wordsMapPath: 'words-map.json',
     }),
+    pluginModuleFederation(mfConfig),
   ],
   builderConfig: {
+    output: {
+      assetPrefix: 'https://module-federation.io/',
+      // assetPrefix:'http://localhost:3000/'
+    },
     dev: {
       assetPrefix: true,
       writeToDisk: true,
@@ -96,19 +100,8 @@ export default defineConfig({
         addPlugins([require('tailwindcss/nesting'), require('tailwindcss')]);
       },
       rspack(config) {
-        debugger;
-        const asyncEntry = path.resolve(
-          __dirname,
-          'node_modules/.federation/bootstrap.js',
-        );
-        if (!fs.existsSync(asyncEntry)) {
-          // @ts-ignore
-          fs.writeFileSync(asyncEntry, `import ('${config.entry.index}')`);
-        }
-        // @ts-ignore
-        config.entry.index = [asyncEntry];
-
-        config.plugins.push(new ModuleFederationPlugin(mfConfig));
+        config.optimization.moduleIds = 'named';
+        config.optimization.chunkIds = 'named';
       },
     },
     source: {
