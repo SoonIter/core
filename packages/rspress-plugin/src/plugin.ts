@@ -109,23 +109,28 @@ export function pluginModuleFederation(
       react: {
         singleton: true,
         requiredVersion: false,
+        eager: true,
       },
       'react-dom': {
         singleton: true,
         requiredVersion: false,
+        eager: true,
       },
       'react/': {
         singleton: true,
         requiredVersion: false,
+        eager: true,
       },
       'react-dom/': {
         singleton: true,
         requiredVersion: false,
+        eager: true,
       },
-      '@mdx-js/react': { singleton: true, requiredVersion: false },
+      '@mdx-js/react': { singleton: true, requiredVersion: false, eager: true },
       '@rspress/runtime': {
         singleton: true,
         requiredVersion: false,
+        eager: true,
       },
       ...mfConfig.shared,
     };

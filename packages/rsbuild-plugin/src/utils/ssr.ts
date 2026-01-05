@@ -104,12 +104,50 @@ export function createSSRREnvConfig(
   return ssrEnvConfig;
 }
 
+function makeSharedEager(
+  shared: moduleFederationPlugin.ModuleFederationPluginOptions['shared'],
+): moduleFederationPlugin.ModuleFederationPluginOptions['shared'] {
+  if (!shared) return shared;
+
+  if (Array.isArray(shared)) {
+    return shared.map((item) => {
+      if (typeof item === 'string') {
+        return { [item]: { eager: true } };
+      }
+      // item is an object
+      const result: Record<string, any> = {};
+      for (const key of Object.keys(item)) {
+        const value = item[key];
+        if (typeof value === 'string') {
+          result[key] = { import: value, eager: true };
+        } else {
+          result[key] = { ...value, eager: true };
+        }
+      }
+      return result;
+    });
+  }
+
+  // shared is an object
+  const result: Record<string, any> = {};
+  for (const key of Object.keys(shared)) {
+    const value = shared[key];
+    if (typeof value === 'string') {
+      result[key] = { import: value, eager: true };
+    } else {
+      result[key] = { ...value, eager: true };
+    }
+  }
+  return result;
+}
+
 export function createSSRMFConfig(
   mfConfig: moduleFederationPlugin.ModuleFederationPluginOptions,
 ) {
   const ssrMFConfig = {
     ...mfConfig,
     exposes: { ...mfConfig.exposes },
+    shared: makeSharedEager(mfConfig.shared),
     library: {
       ...mfConfig.library,
       name: mfConfig.name,
